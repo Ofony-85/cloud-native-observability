@@ -37,7 +37,7 @@ Coming soon...
 
 ### Progress Tracker
 - [x] Day 1: Project setup and planning
-- [ ] Day 2: Architecture documentation
+- [x] Day 2: Architecture documentation
 - [ ] Day 3-4: EKS cluster deployment
 - [ ] Day 5-6: Sample applications
 - [ ] Day 7: Verification
