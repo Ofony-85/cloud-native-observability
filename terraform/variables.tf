@@ -89,3 +89,58 @@ variable "eks_node_max_size" {
   type        = number
   default     = 3
 }
+# RDS Variables
+variable "database_name" {
+  description = "Name of the database"
+  type        = string
+  default     = "appdb"
+}
+
+variable "database_username" {
+  description = "Database master username"
+  type        = string
+  default     = "dbadmin"
+}
+
+variable "database_password" {
+  description = "Database master password"
+  type        = string
+  sensitive   = true
+  default     = ""  # Will be generated if empty
+}
+
+variable "rds_instance_class" {
+  description = "RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "rds_allocated_storage" {
+  description = "Allocated storage in GB"
+  type        = number
+  default     = 20
+}
+
+variable "rds_engine_version" {
+  description = "PostgreSQL engine version"
+  type        = string
+  default     = "15.7"
+}
+
+variable "rds_multi_az" {
+  description = "Enable Multi-AZ"
+  type        = bool
+  default     = false
+}
+
+variable "rds_backup_retention_period" {
+  description = "Backup retention in days"
+  type        = number
+  default     = 7
+}
+
+variable "rds_skip_final_snapshot" {
+  description = "Skip final snapshot when destroying"
+  type        = bool
+  default     = true
+}

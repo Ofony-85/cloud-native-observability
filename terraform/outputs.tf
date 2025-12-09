@@ -44,3 +44,24 @@ output "eks_cluster_security_group_id" {
   description = "EKS cluster security group ID"
   value       = module.eks.cluster_security_group_id
 }
+# RDS Outputs
+output "rds_endpoint" {
+  description = "RDS instance endpoint"
+  value       = module.rds.db_instance_endpoint
+  sensitive   = true
+}
+
+output "rds_address" {
+  description = "RDS instance address"
+  value       = module.rds.db_instance_address
+}
+
+output "rds_port" {
+  description = "RDS instance port"
+  value       = module.rds.db_instance_port
+}
+
+output "database_name" {
+  description = "Database name"
+  value       = module.rds.db_name
+}

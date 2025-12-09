@@ -65,3 +65,29 @@ module "eks" {
 
   tags = var.common_tags
 }
+# Create RDS Database
+module "rds" {
+  source = "./rds"
+
+  project_name              = var.project_name
+  environment               = var.environment
+  vpc_id                    = module.vpc.vpc_id
+  database_subnet_ids       = module.vpc.database_subnet_ids
+  database_subnet_group_name = module.vpc.database_subnet_group_name
+
+  # Allow access from EKS nodes
+  allowed_security_group_ids = [module.eks.node_security_group_id]
+
+  database_name     = var.database_name
+  database_username = var.database_username
+  database_password = var.database_password
+
+  instance_class          = var.rds_instance_class
+  allocated_storage       = var.rds_allocated_storage
+  engine_version          = var.rds_engine_version
+  multi_az                = var.rds_multi_az
+  backup_retention_period = var.rds_backup_retention_period
+  skip_final_snapshot     = var.rds_skip_final_snapshot
+
+  tags = var.common_tags
+}
