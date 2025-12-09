@@ -39,7 +39,7 @@ Coming soon...
 - [x] Day 1: Project setup and planning
 - [x] Day 2: Architecture documentation
 - [x] Day 3-4: EKS cluster deployment
-- [ ] Day 5-6: Sample applications
+- [x] Day 5-6: Sample applications
 - [ ] Day 7: Verification
 - [ ] Days 8-14: Observability stack
 - [ ] Days 15-21: Production features
