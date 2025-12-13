@@ -1,441 +1,611 @@
-# Cloud-Native Observability Platform
+Cloud Native Observability Platform
 
-A production-grade microservices platform on AWS EKS demonstrating complete cloud infrastructure, containerization, and database integration.
+A production-ready microservices application deployed on AWS EKS with comprehensive monitoring and observability capabilities.
 
-**Live Demo:** [Backend API](http://a3916799619d4469c86237b7c1744d19-1157698383.us-east-1.elb.amazonaws.com/health)
+Show Image
+Show Image
+Show Image
+Show Image
+Show Image
 
-[![Infrastructure](https://img.shields.io/badge/Infrastructure-Terraform-purple.svg)](https://www.terraform.io/)
-[![Cloud](https://img.shields.io/badge/AWS-EKS%20%7C%20RDS%20%7C%20VPC-orange.svg)](https://aws.amazon.com/)
-[![Container](https://img.shields.io/badge/Container-Docker%20%7C%20Kubernetes-blue.svg)](https://kubernetes.io/)
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-success.svg)]()
+📋 Table of Contents
 
----
+Overview
+Architecture
+Technology Stack
+Features
+Prerequisites
+Deployment
+Access URLs
+Monitoring & Observability
+API Documentation
+Project Structure
+Cost Optimization
+Troubleshooting
+Cleanup
 
-## 🎯 Project Overview
 
-This project demonstrates enterprise-grade cloud infrastructure deployment featuring:
-- **Multi-tier architecture** across 2 AWS availability zones
-- **Kubernetes orchestration** with EKS (Elastic Kubernetes Service)
-- **Containerized microservices** with automated deployments
-- **Production database** with PostgreSQL on RDS
-- **Infrastructure as Code** with 100% automation
-- **Monitoring-ready** with Prometheus metrics
+🎯 Overview
+This project demonstrates a complete cloud-native application architecture with:
 
-**Built in 6 days** as part of comprehensive cloud engineering learning.
+Containerized microservices running on Kubernetes
+AWS EKS for orchestration
+AWS ECR for container registry
+PostgreSQL database for data persistence
+Prometheus for metrics collection
+Grafana for visualization and dashboards
+Production-ready configuration with health checks, resource limits, and CORS
 
----
 
-## 🏗️ Architecture
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    AWS Cloud (us-east-1)                     │
-│                                                               │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │              VPC (10.0.0.0/16)                        │   │
-│  │                                                        │   │
-│  │  ┌────────────────────────────────────────────────┐  │   │
-│  │  │       Public Subnets (2 AZs)                   │  │   │
-│  │  │   ┌─────────────────────────────────────┐      │  │   │
-│  │  │   │  Application Load Balancer          │      │  │   │
-│  │  │   └───────────────┬─────────────────────┘      │  │   │
-│  │  └───────────────────┼──────────────────────────────┘  │   │
-│  │                      │                                  │   │
-│  │  ┌───────────────────┼──────────────────────────────┐  │   │
-│  │  │     Private Subnets (2 AZs)                      │  │   │
-│  │  │        ┌──────────▼──────────┐                   │  │   │
-│  │  │        │   EKS Cluster        │                   │  │   │
-│  │  │        │                      │                   │  │   │
-│  │  │        │  ┌────────────────┐ │                   │  │   │
-│  │  │        │  │ Backend API    │ │                   │  │   │
-│  │  │        │  │ (2 Pods)       │ │                   │  │   │
-│  │  │        │  │ FastAPI + Nginx│ │                   │  │   │
-│  │  │        │  └────────────────┘ │                   │  │   │
-│  │  │        └──────────────────────┘                   │  │   │
-│  │  └──────────────────────────────────────────────────┘  │   │
-│  │                                                        │   │
-│  │  ┌──────────────────────────────────────────────────┐  │   │
-│  │  │       Database Subnets (Private)                 │  │   │
-│  │  │   ┌────────────────────────────────────┐         │  │   │
-│  │  │   │  RDS PostgreSQL 15.7               │         │  │   │
-│  │  │   │  (db.t3.micro - 20GB encrypted)    │         │  │   │
-│  │  │   └────────────────────────────────────┘         │  │   │
-│  │  └──────────────────────────────────────────────────┘  │   │
-│  └────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
+🏗️ Architecture
+┌─────────────────────────────────────────────────────────────────┐
+│                         AWS Cloud (us-east-1)                    │
+│                                                                   │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │                    EKS Cluster (2 Nodes)                    │ │
+│  │                                                              │ │
+│  │  ┌──────────────────────────────────────────────────────┐  │ │
+│  │  │              Default Namespace                        │  │ │
+│  │  │                                                        │  │ │
+│  │  │  ┌─────────────────┐      ┌────────────────────┐    │  │ │
+│  │  │  │   Frontend      │      │     Backend        │    │  │ │
+│  │  │  │   (React/Vite)  │─────▶│   (FastAPI)        │    │  │ │
+│  │  │  │   2 Replicas    │      │   3 Replicas       │    │  │ │
+│  │  │  │   Port: 80      │      │   Port: 8000       │────┐│  │ │
+│  │  │  └─────────────────┘      └────────────────────┘    ││  │ │
+│  │  │          │                          │                ││  │ │
+│  │  │          │                          │                ││  │ │
+│  │  │  ┌───────▼──────────────────────────▼──────┐        ││  │ │
+│  │  │  │            LoadBalancers                 │        ││  │ │
+│  │  │  │  - Frontend LB (Port 80)                │        ││  │ │
+│  │  │  │  - Backend LB (Port 8000)               │        ││  │ │
+│  │  │  └──────────────────────────────────────────┘        ││  │ │
+│  │  │                                                       ││  │ │
+│  │  │  ┌────────────────────────────────────┐              ││  │ │
+│  │  │  │        PostgreSQL Database         │◀─────────────┘│  │ │
+│  │  │  │        1 Replica                   │               │  │ │
+│  │  │  │        Port: 5432                  │               │  │ │
+│  │  │  └────────────────────────────────────┘               │  │ │
+│  │  └──────────────────────────────────────────────────────┘  │ │
+│  │                                                              │ │
+│  │  ┌──────────────────────────────────────────────────────┐  │ │
+│  │  │           Monitoring Namespace                        │  │ │
+│  │  │                                                        │  │ │
+│  │  │  ┌─────────────────┐      ┌────────────────────┐    │  │ │
+│  │  │  │   Prometheus    │◀─────│      Grafana       │    │  │ │
+│  │  │  │   (Metrics)     │      │   (Dashboards)     │    │  │ │
+│  │  │  │   1 Replica     │      │    1 Replica       │    │  │ │
+│  │  │  │   Port: 9090    │      │    Port: 3000      │    │  │ │
+│  │  │  └─────────────────┘      └────────────────────┘    │  │ │
+│  │  │          │                          │                 │  │ │
+│  │  │  ┌───────▼──────────────────────────▼──────┐         │  │ │
+│  │  │  │            LoadBalancers                 │         │  │ │
+│  │  │  │  - Prometheus LB (Port 9090)            │         │  │ │
+│  │  │  │  - Grafana LB (Port 3000)               │         │  │ │
+│  │  │  └──────────────────────────────────────────┘         │  │ │
+│  │  └──────────────────────────────────────────────────────┘  │ │
+│  │                                                              │ │
+│  │  ┌──────────────────────────────────────────────────────┐  │ │
+│  │  │           Kube-System Namespace                       │  │ │
+│  │  │                                                        │  │ │
+│  │  │  ┌─────────────────┐                                 │  │ │
+│  │  │  │  Metrics Server │                                 │  │ │
+│  │  │  │  (Resource Mon.)│                                 │  │ │
+│  │  │  └─────────────────┘                                 │  │ │
+│  │  └──────────────────────────────────────────────────────┘  │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │                 AWS ECR (Container Registry)                │ │
+│  │  - observability/frontend:v2                               │ │
+│  │  - observability/backend:v3                                │ │
+│  └────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
 
----
+              ▲                              ▲
+              │                              │
+          Internet                      Monitoring
+            Users                         Team
+Architecture Highlights
 
-## 🚀 Live Endpoints
+High Availability: Multiple replicas for frontend (2) and backend (3)
+Service Discovery: Kubernetes DNS for inter-service communication
+Load Balancing: AWS ELB for external access
+Health Checks: Liveness and readiness probes on all services
+Resource Management: CPU and memory limits/requests configured
+Security: RBAC, service accounts, and network policies
 
-### Backend API
-**Base URL:** `http://a3916799619d4469c86237b7c1744d19-1157698383.us-east-1.elb.amazonaws.com`
 
-**Available Endpoints:**
-- `GET /` - API welcome message
-- `GET /health` - Health check endpoint
-- `GET /ready` - Readiness probe (includes DB check)
-- `GET /api/info` - Server and database information
-- `GET /api/items` - List all items from database
-- `POST /api/items` - Create new item
-- `GET /api/items/{id}` - Get specific item
-- `GET /metrics` - Prometheus metrics
-- `GET /docs` - Auto-generated API documentation (Swagger UI)
+🛠️ Technology Stack
+Frontend
 
-**Test the API:**
-```bash
-# Health check
-curl http://a3916799619d4469c86237b7c1744d19-1157698383.us-east-1.elb.amazonaws.com/health
+Framework: React 18 with Vite
+Styling: Inline CSS with gradient designs
+HTTP Client: Native Fetch API
+Container: Nginx Alpine
 
-# Server info
-curl http://a3916799619d4469c86237b7c1744d19-1157698383.us-east-1.elb.amazonaws.com/api/info
+Backend
 
-# Create item
-curl -X POST http://a3916799619d4469c86237b7c1744d19-1157698383.us-east-1.elb.amazonaws.com/api/items \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Test Item", "description": "Testing the API"}'
+Framework: FastAPI (Python 3.11)
+ORM: SQLAlchemy
+Database Driver: psycopg2
+Metrics: Prometheus Client
+ASGI Server: Uvicorn
 
-# Get all items
-curl http://a3916799619d4469c86237b7c1744d19-1157698383.us-east-1.elb.amazonaws.com/api/items
-```
+Database
 
----
+Database: PostgreSQL 15 Alpine
+Storage: Kubernetes EmptyDir (demo) - can be upgraded to PVC
 
-## 🛠️ Technology Stack
+Infrastructure
 
-### Infrastructure & Cloud
-- **Cloud Provider:** Amazon Web Services (AWS)
-- **Infrastructure as Code:** Terraform v1.10.3
-- **Container Orchestration:** Kubernetes v1.31 (Amazon EKS)
-- **Networking:** VPC with Multi-AZ deployment
-- **Load Balancing:** AWS Application Load Balancer
+Orchestration: Kubernetes 1.34 (AWS EKS)
+Container Runtime: Docker
+Registry: AWS ECR
+Cloud Provider: AWS (us-east-1)
+Compute: 2x t3.medium EC2 instances
 
-### Compute & Database
-- **Container Runtime:** Docker
-- **Application Server:** Uvicorn (ASGI)
-- **Database:** PostgreSQL 15.7 on Amazon RDS
-- **Storage:** Amazon EBS (encrypted), Amazon EFS ready
+Monitoring
 
-### Application
-- **Backend Framework:** Python 3.11 + FastAPI
-- **ORM:** SQLAlchemy 2.0
-- **API Documentation:** Auto-generated with Swagger/OpenAPI
-- **Monitoring:** Prometheus metrics client
+Metrics Collection: Prometheus 2.47
+Visualization: Grafana 10.1
+Resource Monitoring: Kubernetes Metrics Server
 
-### DevOps & Tools
-- **Version Control:** Git + GitHub
-- **Container Registry:** Amazon ECR
-- **CLI Tools:** kubectl, AWS CLI, Helm
-- **Configuration:** Kubernetes ConfigMaps & Secrets
 
----
+✨ Features
+Application Features
 
-## 📊 Infrastructure Components
+✅ Create, read, and list items with descriptions
+✅ Real-time health status monitoring
+✅ Server information display (hostname, database info)
+✅ Persistent data storage in PostgreSQL
+✅ Beautiful, responsive UI with gradient design
+✅ RESTful API with automatic documentation
 
-### AWS Resources Deployed (43 total)
+DevOps Features
 
-**Networking (24 resources):**
-- 1 VPC (10.0.0.0/16)
-- 6 Subnets (2 public, 2 private, 2 database)
-- 1 Internet Gateway
-- 1 NAT Gateway
-- 4 Route Tables
-- 8 Security Groups
-- Multiple Route Table Associations
+✅ Container orchestration with Kubernetes
+✅ Automated deployment with kubectl
+✅ Multi-replica scaling for high availability
+✅ Load balancing across instances
+✅ Health checks and auto-restart
+✅ Resource limits and requests
+✅ CORS configuration for cross-origin requests
 
-**Compute (11 resources):**
-- 1 EKS Cluster
-- 1 EKS Node Group
-- 2 EC2 Instances (t3.medium)
-- 3 EKS Add-ons (VPC CNI, kube-proxy, CoreDNS)
-- IAM Roles and Policies
+Observability Features
 
-**Database (2 resources):**
-- 1 RDS PostgreSQL Instance
-- 1 DB Subnet Group
+✅ Prometheus metrics scraping
+✅ Grafana dashboard integration
+✅ Kubernetes metrics server
+✅ Application performance monitoring
+✅ Infrastructure resource tracking
+✅ Custom metrics endpoint (/metrics)
 
-**Kubernetes Resources:**
-- 2 Backend Pods (FastAPI application)
-- 1 LoadBalancer Service
-- 1 ConfigMap
-- 1 Secret
-- 1 Deployment
 
----
+📦 Prerequisites
+Required Tools
+bash# AWS CLI
+aws --version  # AWS CLI 2.x
 
-## 🎯 Key Features
+# Docker
+docker --version  # Docker 20.x+
 
-### High Availability
-- ✅ Multi-AZ deployment across 2 availability zones (us-east-1a, us-east-1b)
-- ✅ Automatic pod rescheduling on node failure
-- ✅ Load balancer health checks with automatic failover
-- ✅ Database with automated backups (7-day retention)
+# kubectl
+kubectl version --client  # v1.28+
 
-### Security
-- ✅ Private subnets for compute workloads (no direct internet access)
-- ✅ Database in isolated subnets
-- ✅ Security groups with least-privilege access
-- ✅ Encrypted database storage (AES-256)
-- ✅ Kubernetes secrets for sensitive data
+# eksctl (optional, for cluster management)
+eksctl version  # 0.150+
+AWS Credentials
+bash# Configure AWS credentials
+aws configure
+# AWS Access Key ID: YOUR_ACCESS_KEY
+# AWS Secret Access Key: YOUR_SECRET_KEY
+# Default region: us-east-1
+# Default output format: json
 
-### Scalability
-- ✅ Kubernetes-based horizontal scaling ready
-- ✅ Load balancer distributing traffic across pods
-- ✅ EKS node group can scale from 2-3 nodes
-- ✅ Database can scale vertically
-
-### Monitoring
-- ✅ Prometheus metrics exposed on `/metrics` endpoint
-- ✅ Application health checks (liveness & readiness)
-- ✅ Request counters and latency histograms
-- ✅ Resource usage tracking
-
-### Automation
-- ✅ 100% Infrastructure as Code with Terraform
-- ✅ Automated database migrations
-- ✅ Container image builds and pushes to ECR
-- ✅ Kubernetes declarative deployments
-
----
-
-## 💻 Local Development Setup
-
-### Prerequisites
-- AWS Account with appropriate permissions
-- AWS CLI configured
-- Terraform >= 1.0
-- kubectl
-- Docker
-- Python 3.11+ (for local development)
-
-### Quick Start
-```bash
-# 1. Clone repository
-git clone https://github.com/Ofony-85/cloud-native-observability.git
+🚀 Deployment
+1. Clone the Repository
+bashgit clone <repository-url>
 cd cloud-native-observability
-
-# 2. Deploy infrastructure
-cd terraform
-terraform init
-terraform apply
-
-# 3. Configure kubectl
-aws eks update-kubeconfig --region us-east-1 --name observability-dev
-
-# 4. Deploy application
-cd ../kubernetes/apps/backend
-kubectl apply -f secret.yaml
-kubectl apply -f configmap.yaml
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
-
-# 5. Get LoadBalancer URL
-kubectl get service backend
-```
-
----
-
-## 📁 Project Structure
-```
+2. Project Structure
 cloud-native-observability/
-├── terraform/              # Infrastructure as Code
-│   ├── main.tf            # Root configuration
-│   ├── variables.tf       # Input variables
-│   ├── outputs.tf         # Output values
-│   ├── vpc/               # VPC module
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   ├── eks/               # EKS cluster module
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   └── rds/               # Database module
-│       ├── main.tf
-│       ├── variables.tf
-│       └── outputs.tf
 ├── src/
-│   └── backend/           # Backend application
-│       ├── app.py         # FastAPI application
-│       ├── database.py    # Database models and connection
-│       ├── config.py      # Configuration management
-│       ├── requirements.txt
-│       └── Dockerfile
-├── kubernetes/            # Kubernetes manifests
-│   └── apps/
-│       └── backend/
-│           ├── deployment.yaml
-│           ├── service.yaml
-│           ├── configmap.yaml
-│           └── secret.yaml
-└── docs/                  # Documentation
-    ├── architecture/
-    ├── COST_ESTIMATE.md
-    └── PROJECT_PLAN.md
-```
+│   ├── backend/
+│   │   ├── app.py              # FastAPI application
+│   │   ├── config.py           # Configuration management
+│   │   ├── database.py         # Database models and connection
+│   │   ├── requirements.txt    # Python dependencies
+│   │   └── Dockerfile          # Backend container image
+│   └── frontend/
+│       ├── App.jsx             # Main React component
+│       ├── main.jsx            # React entry point
+│       ├── index.html          # HTML template
+│       ├── package.json        # Node dependencies
+│       ├── vite.config.js      # Vite configuration
+│       └── Dockerfile          # Frontend container image
+├── k8s/
+│   ├── backend/
+│   │   ├── deployment.yaml     # Backend deployment & service
+│   │   ├── postgres.yaml       # PostgreSQL deployment & service
+│   │   └── backend-service-lb.yaml  # Backend LoadBalancer
+│   ├── frontend/
+│   │   └── deployment.yaml     # Frontend deployment & service
+│   └── monitoring/
+│       ├── prometheus-config.yaml      # Prometheus configuration
+│       ├── prometheus-deployment.yaml  # Prometheus resources
+│       └── grafana-deployment.yaml     # Grafana resources
+└── README.md
+3. Build and Push Docker Images
+Backend
+bashcd src/backend
 
----
+# Build backend image
+docker build -t observability/backend:v3 .
 
-## 💰 Cost Analysis
+# Authenticate with ECR
+aws ecr get-login-password --region us-east-1 | \
+  docker login --username AWS --password-stdin \
+  477094921093.dkr.ecr.us-east-1.amazonaws.com
 
-### Monthly Cost Breakdown
-| Component | Configuration | Cost/Month |
-|-----------|--------------|------------|
-| EKS Control Plane | Managed Kubernetes | $73.00 |
-| EC2 Nodes | 2 x t3.medium | $60.00 |
-| RDS PostgreSQL | db.t3.micro | $15.00 |
-| NAT Gateway | Single NAT | $32.00 |
-| Load Balancer | Application LB | $16.00 |
-| Storage | EBS + backups | $6.00 |
-| **Total** | | **~$202/month** |
+# Create ECR repository
+aws ecr create-repository \
+  --repository-name observability/backend \
+  --region us-east-1
 
-### Cost Optimization
-- Using single NAT Gateway (saves $32/month vs dual NAT)
-- t3.micro for RDS (suitable for development/testing)
-- t3.medium nodes (good balance of cost and performance)
-- Can tear down when not in use (saves $6/day)
+# Tag and push
+docker tag observability/backend:v3 \
+  477094921093.dkr.ecr.us-east-1.amazonaws.com/observability/backend:v3
 
----
+docker push \
+  477094921093.dkr.ecr.us-east-1.amazonaws.com/observability/backend:v3
+Frontend
+bashcd src/frontend
 
-## 🔧 API Examples
+# Build frontend image
+docker build -t observability/frontend:v2 .
 
-### Create Item
-```bash
-curl -X POST http://<LOAD-BALANCER-URL>/api/items \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Example Item",
-    "description": "This is a test item"
-  }'
-```
+# Create ECR repository
+aws ecr create-repository \
+  --repository-name observability/frontend \
+  --region us-east-1
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Example Item",
-  "description": "This is a test item",
-  "created_at": "2025-12-11T02:39:48.668777Z"
+# Tag and push
+docker tag observability/frontend:v2 \
+  477094921093.dkr.ecr.us-east-1.amazonaws.com/observability/frontend:v2
+
+docker push \
+  477094921093.dkr.ecr.us-east-1.amazonaws.com/observability/frontend:v2
+4. Deploy to Kubernetes
+Deploy Database
+bashkubectl apply -f k8s/backend/postgres.yaml
+kubectl get pods -l app=postgres
+Deploy Backend
+bashkubectl apply -f k8s/backend/deployment.yaml
+kubectl apply -f k8s/backend/backend-service-lb.yaml
+kubectl get pods -l app=backend
+Deploy Frontend
+bashkubectl apply -f k8s/frontend/deployment.yaml
+kubectl get pods -l app=frontend
+Deploy Monitoring Stack
+bash# Create monitoring namespace
+kubectl create namespace monitoring
+
+# Install Metrics Server
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# Deploy Prometheus
+kubectl apply -f k8s/monitoring/prometheus-config.yaml
+kubectl apply -f k8s/monitoring/prometheus-deployment.yaml
+
+# Deploy Grafana
+kubectl apply -f k8s/monitoring/grafana-deployment.yaml
+
+# Verify monitoring stack
+kubectl get pods -n monitoring
+5. Verify Deployment
+bash# Check all pods
+kubectl get pods --all-namespaces
+
+# Check services
+kubectl get svc --all-namespaces
+
+# Check node resources
+kubectl top nodes
+
+# Check pod resources
+kubectl top pods -n default
+
+🌐 Access URLs
+Production URLs
+Frontend Application
+http://ac9b8c81b5cef4abb8d529471edbe8e1-1098876561.us-east-1.elb.amazonaws.com
+
+Main application interface
+Create and view items
+Real-time health monitoring
+
+Backend API
+http://ae0de86ca641c4fb7a608940d32df610-641845635.us-east-1.elb.amazonaws.com:8000
+API Endpoints:
+
+GET /health - Health check
+GET /api/info - Server information
+GET /api/items - List all items
+POST /api/items - Create new item
+GET /metrics - Prometheus metrics
+
+Prometheus
+http://aeb48acb3c15244a499f5bdf5c5019af-398506636.us-east-1.elb.amazonaws.com:9090
+
+Metrics collection and querying
+Target status monitoring
+PromQL query interface
+
+Grafana
+http://ab5c8e6820bf8419b993ccddee86b162-1723600162.us-east-1.elb.amazonaws.com:3000
+
+Username: admin
+Password: admin123
+Dashboard creation and visualization
+Alerting configuration
+
+
+📊 Monitoring & Observability
+Prometheus Metrics
+The backend exposes the following metrics at /metrics:
+# HTTP Request Metrics
+http_requests_total{method="GET",endpoint="/api/items",status="200"}
+http_request_duration_seconds{method="GET",endpoint="/api/items"}
+
+# System Metrics
+process_cpu_seconds_total
+process_resident_memory_bytes
+Grafana Dashboard Setup
+
+Login to Grafana:
+
+URL: http://<grafana-lb>:3000
+Username: admin
+Password: admin123
+
+
+Add Prometheus Data Source:
+
+Go to: Connections → Data Sources → Add data source
+Select: Prometheus
+URL: http://prometheus.monitoring.svc.cluster.local:9090
+Click: Save & Test
+
+
+Import Dashboards:
+
+Kubernetes Cluster Monitoring: Dashboard ID 6417
+Node Exporter Full: Dashboard ID 1860
+Custom application metrics
+
+
+
+Key Metrics to Monitor
+
+Application Health: Request count, latency, error rates
+Database: Connection pool, query duration
+Infrastructure: CPU, memory, disk usage
+Network: Request throughput, response times
+
+
+📚 API Documentation
+Base URL
+http://ae0de86ca641c4fb7a608940d32df610-641845635.us-east-1.elb.amazonaws.com:8000
+Endpoints
+Health Check
+httpGET /health
+Response:
+json{
+  "status": "healthy",
+  "app": "Observability Backend API",
+  "version": "1.0.0",
+  "environment": "production",
+  "timestamp": "2025-12-12T07:51:41.085330Z"
 }
-```
-
-### Get All Items
-```bash
-curl http://<LOAD-BALANCER-URL>/api/items
-```
-
-**Response:**
-```json
-[
+Server Info
+httpGET /api/info
+Response:
+json{
+  "app_name": "Observability Backend API",
+  "version": "1.0.0",
+  "environment": "production",
+  "hostname": "backend-597cbfff9f-2h65h",
+  "database": {
+    "host": "postgres",
+    "port": 5432,
+    "database": "observability"
+  },
+  "timestamp": "2025-12-12T07:56:33.494082Z"
+}
+List Items
+httpGET /api/items
+Response:
+json[
   {
     "id": 1,
-    "name": "Example Item",
-    "description": "This is a test item",
-    "created_at": "2025-12-11T02:39:48.668777Z"
+    "name": "Test Item from CLI",
+    "description": "Created via curl command",
+    "created_at": "2025-12-12T07:37:14.098676Z"
+  },
+  {
+    "id": 2,
+    "name": "My First Kubernetes Item",
+    "description": "Created from the Cloud Observability Platform UI",
+    "created_at": "2025-12-12T07:56:33.494082Z"
   }
 ]
-```
+Create Item
+httpPOST /api/items
+Content-Type: application/json
 
-### Check Metrics
-```bash
-curl http://<LOAD-BALANCER-URL>/metrics
-```
+{
+  "name": "New Item",
+  "description": "Item description"
+}
+Response:
+json{
+  "id": 3,
+  "name": "New Item",
+  "description": "Item description",
+  "created_at": "2025-12-12T08:00:00.000000Z"
+}
+Prometheus Metrics
+httpGET /metrics
+Response:
+# HELP http_requests_total Total HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{endpoint="/api/items",method="GET",status="200"} 42.0
+...
 
-Returns Prometheus-formatted metrics for monitoring.
+💡 Troubleshooting
+Common Issues
+Pods Not Starting
+bash# Check pod status
+kubectl get pods -A
 
----
+# Describe pod to see events
+kubectl describe pod <pod-name> -n <namespace>
 
-## 🎓 Skills Demonstrated
+# Check logs
+kubectl logs <pod-name> -n <namespace>
+Database Connection Issues
+bash# Verify PostgreSQL is running
+kubectl get pods -l app=postgres
 
-### Cloud Engineering
-- ✅ AWS VPC design and multi-AZ architecture
-- ✅ Infrastructure as Code with Terraform
-- ✅ Modular infrastructure design
-- ✅ Cloud cost optimization strategies
+# Check backend logs for connection errors
+kubectl logs -l app=backend --tail=50
 
-### Kubernetes & Containers
-- ✅ EKS cluster deployment and management
-- ✅ Docker containerization
-- ✅ Kubernetes deployments, services, and configurations
-- ✅ Container orchestration and scaling
+# Test database connectivity
+kubectl exec -it <backend-pod> -- psql -h postgres -U admin -d observability
+LoadBalancer Not Accessible
+bash# Check service status
+kubectl get svc
 
-### Database Management
-- ✅ RDS deployment and configuration
-- ✅ Database security (private subnets, encryption)
-- ✅ Automated backups and disaster recovery
-- ✅ SQL and ORM (SQLAlchemy)
+# Wait for EXTERNAL-IP (can take 2-3 minutes)
+kubectl get svc -w
 
-### Backend Development
-- ✅ REST API design with FastAPI
-- ✅ Database integration with SQLAlchemy
-- ✅ API documentation with OpenAPI/Swagger
-- ✅ Health checks and readiness probes
+# Check AWS ELB in console
+aws elb describe-load-balancers --region us-east-1
+CORS Errors
+bash# Verify backend has CORS middleware
+kubectl logs -l app=backend | grep -i cors
 
-### DevOps Practices
-- ✅ Infrastructure automation
-- ✅ Container registry management (ECR)
-- ✅ Configuration management (ConfigMaps, Secrets)
-- ✅ Monitoring and metrics (Prometheus)
-- ✅ Git version control and collaboration
+# Check if backend v3 is deployed
+kubectl get deployment backend -o jsonpath='{.spec.template.spec.containers[0].image}'
+Metrics Not Showing in Prometheus
+bash# Check Prometheus targets
+# Visit: http://<prometheus-lb>:9090/targets
 
-### Networking & Security
-- ✅ VPC networking and subnet design
-- ✅ Load balancer configuration
-- ✅ Security group management
-- ✅ Network segmentation (public/private/database tiers)
+# Verify backend annotations
+kubectl get pods -l app=backend -o yaml | grep -A 3 annotations
 
----
+# Test metrics endpoint
+curl http://<backend-lb>:8000/metrics
 
-## 🚧 Cleanup
+💰 Cost Optimization
+Current Infrastructure Cost (Approximate)
+ResourceQuantityMonthly Cost (est.)EKS Cluster1$73EC2 t3.medium2 nodes~$60ELB (LoadBalancers)5~$100ECR Storage< 5GB~$1Total~$234/month
+Cost Reduction Strategies
 
-To tear down all infrastructure and stop charges:
-```bash
-cd terraform
-terraform destroy
-```
+Scale Down Replicas:
 
-Type `yes` when prompted. This will delete all 43 AWS resources.
+bashkubectl scale deployment backend --replicas=1
+kubectl scale deployment frontend --replicas=1
 
----
+Use NodePort Instead of LoadBalancers:
 
-## 📈 Project Timeline
+bash# Change service type from LoadBalancer to NodePort
+kubectl patch svc frontend -p '{"spec":{"type":"NodePort"}}'
 
-**Duration:** 6 days  
-**Total Resources:** 43 AWS resources  
-**Lines of Code:** ~2,500+ (Terraform + Python + Kubernetes YAML)
+Stop Cluster During Off-Hours:
 
-### Development Progress
-- **Day 1:** Project setup and planning
-- **Day 2:** Architecture documentation
-- **Day 3:** VPC and networking infrastructure (24 resources)
-- **Day 4:** EKS cluster deployment (17 resources)
-- **Day 5:** RDS PostgreSQL database (2 resources)
-- **Day 6:** Backend API development and deployment
+bash# Scale all deployments to 0
+kubectl scale deployment --all --replicas=0 -n default
+kubectl scale deployment --all --replicas=0 -n monitoring
 
----
+Use Spot Instances for EKS node groups
 
-## 🎯 Future Enhancements
 
-- [ ] Add frontend React application
-- [ ] Implement Prometheus + Grafana monitoring stack
-- [ ] Add Loki for centralized logging
-- [ ] Implement Jaeger for distributed tracing
-- [ ] Add Kubecost for cost tracking
-- [ ] Configure AlertManager for notifications
-- [ ] Implement CI/CD pipeline with GitHub Actions
-- [ ] Add HTTPS with AWS Certificate Manager
-- [ ] Implement Horizontal Pod Autoscaler
-- [ ] Add Helm charts for easier deployment
+🧹 Cleanup
+Option 1: Delete Deployments Only (Keep Cluster)
+bash# Delete all deployments in default namespace
+kubectl delete deployment --all -n default
+kubectl delete svc --all -n default
 
----
+# Delete monitoring stack
+kubectl delete deployment --all -n monitoring
+kubectl delete svc --all -n monitoring
 
-## 📄 License
+# Delete namespaces
+kubectl delete namespace monitoring
+Option 2: Delete Entire Cluster
+bash# Delete EKS cluster (WARNING: This is irreversible)
+eksctl delete cluster --name observability-cluster --region us-east-1
 
-This project is open source and available under the [MIT License](LICENSE).
+# This will delete:
+# - All pods, services, deployments
+# - LoadBalancers
+# - EC2 instances
+# - VPC resources
+Option 3: Clean Up AWS Resources
+bash# Delete ECR repositories
+aws ecr delete-repository \
+  --repository-name observability/frontend \
+  --region us-east-1 \
+  --force
 
----
+aws ecr delete-repository \
+  --repository-name observability/backend \
+  --region us-east-1 \
+  --force
 
-## 👤 Author
+# List and delete remaining ELBs (if any)
+aws elb describe-load-balancers --region us-east-1
+aws elb delete-load-balancer --load-balancer-name <lb-name> --region us-east-1
+Verification
+bash# Verify cluster deletion
+kubectl get nodes
+# Should show: "Unable to connect to the server"
+
+# Verify ECR deletion
+aws ecr describe-repositories --region us-east-1
+# Should show empty or error
+
+# Check AWS Console for any remaining resources
+
+📈 Future Enhancements
+
+ Implement persistent volumes for PostgreSQL
+ Add Horizontal Pod Autoscaling (HPA)
+ Configure Ingress Controller (nginx/traefik)
+ Implement CI/CD pipeline (GitHub Actions/GitLab CI)
+ Add authentication and authorization
+ Implement distributed tracing (Jaeger/Zipkin)
+ Add log aggregation (ELK/Loki)
+ Implement backup and disaster recovery
+ Add SSL/TLS certificates
+ Multi-region deployment
+
+
+🤝 Contributing
+Contributions are welcome! Please follow these steps:
+
+Fork the repository
+Create a feature branch (git checkout -b feature/amazing-feature)
+Commit your changes (git commit -m 'Add amazing feature')
+Push to the branch (git push origin feature/amazing-feature)
+Open a Pull Request
+
+
+📝 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+# 👤 Author
 
 **Ofonime Offong**
 
@@ -459,3 +629,17 @@ This project is open source and available under the [MIT License](LICENSE).
 **⭐ If you find this project helpful, please give it a star!**
 
 **Built with ❤️ demonstrating production-grade cloud engineering practices**
+
+
+🎯 Project Completion Status
+✅ Day 1-2: Project setup and local development
+✅ Day 3-4: Containerization with Docker
+✅ Day 5-6: AWS ECR setup and image registry
+✅ Day 7: Kubernetes deployment to EKS
+✅ Day 8: Monitoring stack (Prometheus + Grafana)
+✅ Production Ready: Full observability platform deployed!
+Total Deployment Time: ~8 days
+Total Pods Running: 9
+Services Exposed: 5 LoadBalancers
+Infrastructure: 2-node EKS cluster
+Status: ✅ PRODUCTION READY
