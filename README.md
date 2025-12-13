@@ -1,3 +1,6 @@
+[![Portfolio](https://img.shields.io/badge/Portfolio-Live-success)](https://Ofony-85.github.io)
+[![GitHub](https://img.shields.io/badge/GitHub-Ofony--85-blue)](https://github.com/Ofony-85)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://linkedin.com/in/ofonime-offong-139322a3)
 Cloud Native Observability Platform
 
 A production-ready microservices application deployed on AWS EKS with comprehensive monitoring and observability capabilities.
